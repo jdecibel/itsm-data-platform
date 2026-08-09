@@ -19,5 +19,5 @@ venv/
 
 # others
 CLAUDE.md
-*/phase-roadmap.md
+*.phase-roadmap.md
 .claude/
