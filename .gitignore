@@ -1,0 +1,23 @@
+.env
+.env.*
+
+*.log
+logs/
+airflow.db
+airflow-webserver.pid
+
+*.pyc
+__pycache__/
+.venv/
+venv/
+.DS_Store
+.vscode/
+
+# Python
+
+# dbt
+
+# others
+CLAUDE.md
+*/phase-roadmap.md
+.claude/
