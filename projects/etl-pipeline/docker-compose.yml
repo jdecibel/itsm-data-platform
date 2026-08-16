@@ -1,0 +1,129 @@
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.10.0
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres-airflow/${AIRFLOW_DB_NAME}
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./plugins:/opt/airflow/plugins
+    - ./logs:/opt/airflow/logs
+  user: "${AIRFLOW_UID:-50000}:0"
+  networks:
+    - etl-pipeline-net
+
+services:
+  postgres-airflow:
+    image: postgres:16-alpine
+    container_name: etl-postgres-airflow
+    environment:
+      POSTGRES_USER: ${AIRFLOW_DB_USER}
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+      POSTGRES_DB: ${AIRFLOW_DB_NAME}
+    volumes:
+      - etl_postgres_airflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AIRFLOW_DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl-pipeline-net
+    # no host port — nothing outside the Airflow containers needs to reach Airflow's own metadata DB
+
+  postgres-warehouse:
+    image: postgres:16-alpine
+    container_name: etl-postgres-warehouse
+    environment:
+      POSTGRES_USER: ${WAREHOUSE_DB_USER}
+      POSTGRES_PASSWORD: ${WAREHOUSE_DB_PASSWORD}
+      POSTGRES_DB: ${WAREHOUSE_DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - etl_postgres_warehouse_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${WAREHOUSE_DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl-pipeline-net
+
+  localstack:
+    image: localstack/localstack:3.7
+    container_name: etl-localstack
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=us-east-1
+    ports:
+      - "4566:4566"
+    volumes:
+      - etl_localstack_data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - etl-pipeline-net
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: etl-airflow-init
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - >
+        airflow db migrate &&
+        airflow users create
+        --username ${AIRFLOW_ADMIN_USER}
+        --password ${AIRFLOW_ADMIN_PASSWORD}
+        --firstname Admin
+        --lastname User
+        --role Admin
+        --email admin@example.com
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: etl-airflow-webserver
+    command: webserver
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: etl-airflow-scheduler
+    command: scheduler
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$${HOSTNAME}\""]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+networks:
+  etl-pipeline-net:
+    name: etl-pipeline-net
+
+volumes:
+  etl_postgres_airflow_data:
+  etl_postgres_warehouse_data:
+  etl_localstack_data:

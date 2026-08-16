@@ -17,7 +17,13 @@ venv/
 
 # dbt
 
+# data — real anchor dataset + generated synthetic sources, regenerate locally, don't commit
+projects/etl-pipeline/data/
+
 # others
 CLAUDE.md
 *.phase-roadmap.md
 .claude/
+
+# personal study notes — not part of the portfolio deliverable
+LEARNING_LOG.md
