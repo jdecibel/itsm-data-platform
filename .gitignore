@@ -17,6 +17,8 @@ venv/
 # Python
 
 # dbt
+target/
+dbt_packages/
 
 # data — real anchor dataset + generated synthetic sources, regenerate locally, don't commit
 projects/etl-pipeline/data/

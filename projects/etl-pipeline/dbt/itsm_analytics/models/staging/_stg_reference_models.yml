@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: stg_staff
+    description: 1:1 cleanup of raw.staff — all 940 staff (40 technicians/PMs/AMs + 900 plain employees).
+    columns:
+      - name: staff_id
+        data_tests:
+          - unique
+          - not_null
+      - name: role
+        data_tests:
+          - accepted_values:
+              values: ['Helpdesk Technician', 'Field Engineer', 'Project Manager', 'Account Manager', 'Employee']
+
+  - name: stg_clients
+    description: 1:1 cleanup of raw.clients.
+    columns:
+      - name: client_id
+        data_tests:
+          - unique
+          - not_null
+      - name: contract_tier
+        data_tests:
+          - accepted_values:
+              values: ['Basic', 'Standard', 'Premium']
+
+  - name: stg_assets
+    description: 1:1 cleanup of raw.assets.
+    columns:
+      - name: asset_id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: asset_type
+        data_tests:
+          - accepted_values:
+              values: ['Server', 'Laptop', 'Desktop', 'Network Switch', 'Firewall', 'Printer']
+      - name: asset_status
+        data_tests:
+          - accepted_values:
+              values: ['Active', 'Decommissioned']
+
+  - name: stg_projects
+    description: 1:1 cleanup of raw.projects.
+    columns:
+      - name: project_id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: project_manager_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+      - name: contract_type
+        data_tests:
+          - accepted_values:
+              values: ['Fixed-Bid', 'Time-and-Materials']
+      - name: project_status
+        data_tests:
+          - accepted_values:
+              values: ['Planned', 'Active', 'Completed', 'On Hold']

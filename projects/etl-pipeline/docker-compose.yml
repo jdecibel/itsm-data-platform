@@ -1,17 +1,23 @@
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.10.0
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: itsm-etl-airflow:2.10.0-dbt
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres-airflow/${AIRFLOW_DB_NAME}
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW_CONN_AWS_S3: '{"conn_type": "aws", "login": "test", "password": "test", "extra": {"endpoint_url": "http://localstack:4566", "region_name": "us-east-1"}}'
     AIRFLOW_CONN_POSTGRES_WAREHOUSE: '{"conn_type": "postgres", "login": "${WAREHOUSE_DB_USER}", "password": "${WAREHOUSE_DB_PASSWORD}", "host": "postgres-warehouse", "schema": "${WAREHOUSE_DB_NAME}", "port": 5432}'
+    DBT_DB_PASSWORD: ${DBT_DB_PASSWORD}
+    DBT_PROFILES_DIR: /opt/airflow/dbt/itsm_analytics
   volumes:
     - ./dags:/opt/airflow/dags
     - ./plugins:/opt/airflow/plugins
     - ./logs:/opt/airflow/logs
     - ./data:/opt/airflow/data:ro
     - ./tests:/opt/airflow/tests:ro
+    - ./dbt:/opt/airflow/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   networks:
     - etl-pipeline-net
@@ -69,7 +75,8 @@ services:
       - -c
       - >
         psql -v ON_ERROR_STOP=1 -h postgres-warehouse -U ${WAREHOUSE_DB_USER} -d ${WAREHOUSE_DB_NAME} -f /sql/landing_schema.sql &&
-        psql -v ON_ERROR_STOP=1 -h postgres-warehouse -U ${WAREHOUSE_DB_USER} -d ${WAREHOUSE_DB_NAME} -v ro_password="${WAREHOUSE_RO_PASSWORD}" -f /sql/readonly_role.sql
+        psql -v ON_ERROR_STOP=1 -h postgres-warehouse -U ${WAREHOUSE_DB_USER} -d ${WAREHOUSE_DB_NAME} -v ro_password="${WAREHOUSE_RO_PASSWORD}" -f /sql/readonly_role.sql &&
+        psql -v ON_ERROR_STOP=1 -h postgres-warehouse -U ${WAREHOUSE_DB_USER} -d ${WAREHOUSE_DB_NAME} -v dbt_password="${DBT_DB_PASSWORD}" -f /sql/dbt_role.sql
     networks:
       - etl-pipeline-net
 

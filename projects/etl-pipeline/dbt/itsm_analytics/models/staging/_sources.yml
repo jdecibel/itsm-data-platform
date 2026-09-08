@@ -1,0 +1,31 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Phase 1 landing schema — typed columns only, deliberately no
+      PK/NOT NULL/FK constraints (that's this project's own dbt tests' job).
+      Loaded by the itsm_raw_ingestion Airflow DAG via truncate-and-load.
+      Full column documentation lands in the dbt docs pass, not here.
+    schema: raw
+    tables:
+      - name: staff
+        columns: &lineage_columns
+          - name: _ingested_at
+            description: When this row was loaded into the landing schema.
+          - name: _source_key
+            description: The S3 object key this row's batch was loaded from.
+      - name: clients
+        columns: *lineage_columns
+      - name: assets
+        columns: *lineage_columns
+      - name: incidents
+        columns: *lineage_columns
+      - name: projects
+        columns: *lineage_columns
+      - name: timesheets
+        columns: *lineage_columns
+      - name: invoices
+        columns: *lineage_columns
+      - name: helpdesk_tickets
+        columns: *lineage_columns

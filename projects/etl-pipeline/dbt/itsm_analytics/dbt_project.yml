@@ -1,0 +1,31 @@
+name: 'itsm_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'itsm_analytics'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Schema per layer, matching the three schemas provisioned in
+# sql/dbt_role.sql. Requires macros/generate_schema_name.sql to override
+# dbt's default behavior of concatenating the profile's target schema with
+# this value (e.g. "warehouse_staging") — we want the plain name.
+models:
+  itsm_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table

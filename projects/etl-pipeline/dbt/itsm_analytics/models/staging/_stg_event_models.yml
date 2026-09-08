@@ -1,0 +1,136 @@
+version: 2
+
+models:
+  - name: stg_incidents
+    description: 1:1 cleanup of raw.incidents.
+    columns:
+      - name: incident_id
+        data_tests:
+          - unique
+          - not_null
+      - name: asset_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_assets')
+              field: asset_id
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: assigned_technician_id
+        data_tests:
+          # generator always assigns a technician to every incident (unlike
+          # helpdesk tickets, see stg_helpdesk_tickets below) — safe to
+          # require without a where clause.
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+      - name: severity
+        data_tests:
+          - accepted_values:
+              values: ['Low', 'Medium', 'High', 'Critical']
+      - name: incident_source
+        data_tests:
+          - accepted_values:
+              values: ['monitoring_alert', 'manual']
+      - name: incident_status
+        data_tests:
+          - accepted_values:
+              values: ['Open', 'In Progress', 'Resolved', 'Closed']
+
+  - name: stg_timesheets
+    description: 1:1 cleanup of raw.timesheets.
+    data_tests:
+      # real min observed is 0.5 — a zero or negative entry would be a real
+      # data bug, not legitimate data, so this is a genuine floor, not an
+      # arbitrary guess.
+      - dbt_utils.expression_is_true:
+          expression: "hours > 0"
+    columns:
+      - name: timesheet_id
+        data_tests:
+          - unique
+          - not_null
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_projects')
+              field: project_id
+      - name: employee_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+
+  - name: stg_invoices
+    description: 1:1 cleanup of raw.invoices.
+    data_tests:
+      # real min observed is 2062.76 — same reasoning as stg_timesheets.hours.
+      - dbt_utils.expression_is_true:
+          expression: "amount > 0"
+    columns:
+      - name: invoice_id
+        data_tests:
+          - unique
+          - not_null
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_projects')
+              field: project_id
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: invoice_status
+        data_tests:
+          - accepted_values:
+              values: ['Sent', 'Paid', 'Overdue']
+
+  - name: stg_helpdesk_tickets
+    description: >
+      1:1 cleanup of raw.helpdesk_tickets. Internal IT-support tickets —
+      requested_by_employee_id is drawn from the full staff pool, not a
+      client — so this table deliberately has no client_id, unlike
+      incidents/projects, which are client-facing. Not an oversight; a real
+      domain boundary (internal IT support vs. client-facing work).
+    columns:
+      - name: ticket_id
+        data_tests:
+          - unique
+          - not_null
+      - name: requested_by_employee_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+      - name: assigned_technician_id
+        data_tests:
+          # ~40% of Open tickets are deliberately left unassigned by the
+          # generator — not_null here would fail on real, expected data, not
+          # catch a bug. Scoped to non-Open tickets, where the generator
+          # always assigns someone.
+          - not_null:
+              config:
+                where: "ticket_status != 'Open'"
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+      - name: priority
+        data_tests:
+          - accepted_values:
+              values: ['Low', 'Medium', 'High', 'Critical']
+      - name: ticket_status
+        data_tests:
+          - accepted_values:
+              values: ['Open', 'In Progress', 'Resolved', 'Closed']

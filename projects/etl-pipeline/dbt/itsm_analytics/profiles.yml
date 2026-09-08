@@ -1,0 +1,15 @@
+# Committed (no secrets here — password comes from env_var). Picked up via
+# DBT_PROFILES_DIR pointing at this directory, set in docker-compose.yml, so
+# Airflow and any local `dbt` invocation share the exact same profile.
+itsm_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgres-warehouse
+      user: dbt
+      password: "{{ env_var('DBT_DB_PASSWORD') }}"
+      port: 5432
+      dbname: itsm_warehouse
+      schema: staging
+      threads: 4
