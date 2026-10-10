@@ -1,0 +1,4 @@
+project_id,client_id,project_name,start_date,end_date,contract_type,project_manager_id,status
+PRJ-0001,CLI-0001,Network Refresh,2024-01-10,2024-06-19,Fixed-Bid,EMP-00003,Active
+PRJ-0002,CLI-0002,Cloud Migration,2023-12-01,2024-09-17,Time-and-Materials,EMP-00004,Completed
+PRJ-0003,CLI-0001,Security Audit,2025-02-01,2025-04-30,Fixed-Bid,EMP-00003,Planned

@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_project
+    description: Conformed project dimension.
+    columns:
+      - name: project_id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_client')
+              field: client_id
+      - name: project_manager_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_staff')
+              field: staff_id

@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: fact_helpdesk_ticket
+    description: >
+      One row per helpdesk ticket — FKs to dim_date (created/resolved),
+      dim_staff (requester/assignee, role-playing), and resolution measures.
+      Internal IT support, so there is deliberately no client_id.
+    columns:
+      - name: ticket_id
+        description: Primary key (natural key from the source system).
+        data_tests:
+          - unique
+          - not_null
+      - name: created_date
+        description: Date the ticket was opened. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: resolved_date
+        description: Date the ticket was resolved; null while unresolved. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: created_at
+        description: Full creation timestamp (kept for sub-day precision).
+      - name: resolved_at
+        description: Full resolution timestamp; null while unresolved.
+      - name: requested_by_employee_id
+        description: Employee who raised the ticket. FK to dim_staff.staff_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_staff')
+              field: staff_id
+      - name: assigned_technician_id
+        description: Technician handling the ticket; null for some Open tickets. FK to dim_staff.staff_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_staff')
+              field: staff_id
+      - name: category
+        description: Ticket category (degenerate dimension).
+      - name: priority
+        description: Low / Medium / High / Critical.
+      - name: ticket_status
+        description: Open / In Progress / Resolved / Closed.
+      - name: is_resolved
+        description: True when resolved_at is not null.
+      - name: resolution_hours
+        description: Hours from creation to resolution; null (not zero) while unresolved.

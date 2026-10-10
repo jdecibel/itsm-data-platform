@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: dim_asset
+    description: Conformed asset dimension.
+    columns:
+      - name: asset_id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_client')
+              field: client_id

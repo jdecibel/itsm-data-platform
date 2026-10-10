@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_incidents
+    description: 1:1 cleanup of raw.incidents.
+    columns:
+      - name: incident_id
+        data_tests:
+          - unique
+          - not_null
+      - name: asset_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_assets')
+              field: asset_id
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: assigned_technician_id
+        data_tests:
+          # generator always assigns a technician to every incident (unlike
+          # helpdesk tickets, see stg_helpdesk_tickets below) — safe to
+          # require without a where clause.
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id
+      - name: severity
+        data_tests:
+          - accepted_values:
+              values: ['Low', 'Medium', 'High', 'Critical']
+      - name: incident_source
+        data_tests:
+          - accepted_values:
+              values: ['monitoring_alert', 'manual']
+      - name: incident_status
+        data_tests:
+          - accepted_values:
+              values: ['Open', 'In Progress', 'Resolved', 'Closed']

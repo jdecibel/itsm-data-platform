@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: fact_incident
+    description: >
+      One row per incident — FKs to dim_date (opened/closed), dim_asset,
+      dim_client, dim_staff (technician), and resolution measures.
+    columns:
+      - name: incident_id
+        description: Primary key (natural key from the source system).
+        data_tests:
+          - unique
+          - not_null
+      - name: opened_date
+        description: Date the incident was opened. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: closed_date
+        description: Date the incident was closed; null while still open. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: opened_at
+        description: Full open timestamp (kept for sub-day precision).
+      - name: closed_at
+        description: Full close timestamp; null while still open.
+      - name: asset_id
+        description: Affected asset. FK to dim_asset.asset_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_asset')
+              field: asset_id
+      - name: client_id
+        description: Client the incident belongs to. FK to dim_client.client_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_client')
+              field: client_id
+      - name: assigned_technician_id
+        description: Technician assigned (always populated for incidents). FK to dim_staff.staff_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_staff')
+              field: staff_id
+      - name: severity
+        description: Low / Medium / High / Critical.
+      - name: incident_source
+        description: monitoring_alert or manual.
+      - name: incident_status
+        description: Open / In Progress / Resolved / Closed.
+      - name: is_resolved
+        description: True when closed_at is not null.
+      - name: resolution_hours
+        description: Hours from open to close; null (not zero) while still open.

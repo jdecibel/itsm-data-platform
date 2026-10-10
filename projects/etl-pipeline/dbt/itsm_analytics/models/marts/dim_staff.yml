@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_staff
+    description: >
+      Conformed staff dimension — all 940 staff in one table, technicians,
+      project managers, account managers, and plain employees alike, not
+      split into separate dimensions (they all come from one raw.staff
+      table with no structural difference beyond the role column). Every
+      fact that references staff joins here via role-playing aliases
+      depending on context (assigned_technician_id, project_manager_id,
+      employee_id, requested_by_employee_id all point to this one table).
+    columns:
+      - name: staff_id
+        data_tests:
+          - unique
+          - not_null
+      - name: is_technician
+        description: >
+          True for the 40-person cross-domain pool that gets assigned to
+          actual work (technicians, PMs, AMs); false for the 900 plain
+          Employee-role staff, who only ever appear as helpdesk requesters.

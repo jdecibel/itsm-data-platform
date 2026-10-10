@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: int_incidents_enriched
+    description: Incidents with asset/client/technician context and derived resolution time.
+    columns:
+      - name: incident_id
+        data_tests:
+          - unique
+          - not_null

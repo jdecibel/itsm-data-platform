@@ -13,3 +13,14 @@ itsm_analytics:
       dbname: itsm_warehouse
       schema: staging
       threads: 4
+    # Used by GitHub Actions (.github/workflows/dbt.yml): a throwaway Postgres
+    # service container loaded with ci/fixtures instead of the real warehouse.
+    ci:
+      type: postgres
+      host: "{{ env_var('DBT_CI_HOST', 'localhost') }}"
+      user: "{{ env_var('DBT_CI_USER', 'postgres') }}"
+      password: "{{ env_var('DBT_CI_PASSWORD') }}"
+      port: 5432
+      dbname: "{{ env_var('DBT_CI_DBNAME', 'ci') }}"
+      schema: staging
+      threads: 4

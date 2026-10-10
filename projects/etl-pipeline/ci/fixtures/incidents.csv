@@ -1,0 +1,5 @@
+incident_id,asset_id,client_id,opened_at,closed_at,severity,source,assigned_technician_id,status
+INC-000001,AST-00001,CLI-0001,2024-05-31 14:17:00,2024-06-01 05:17:00,Low,manual,EMP-00001,Resolved
+INC-000002,AST-00002,CLI-0001,2023-01-15 23:21:00,2023-01-17 00:21:00,High,monitoring_alert,EMP-00002,Closed
+INC-000003,AST-00003,CLI-0002,2024-08-02 09:00:00,2024-08-02 11:30:00,Critical,monitoring_alert,EMP-00001,Resolved
+INC-000004,AST-00001,CLI-0001,2025-01-02 08:00:00,,Medium,manual,EMP-00002,Open

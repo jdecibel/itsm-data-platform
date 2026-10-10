@@ -1,0 +1,6 @@
+timesheet_id,project_id,employee_id,work_date,hours,billable,task_description
+TS-000001,PRJ-0001,EMP-00005,2024-03-28,3.5,True,Configure core switches.
+TS-000002,PRJ-0001,EMP-00006,2024-03-29,2.0,False,Internal planning meeting.
+TS-000003,PRJ-0002,EMP-00005,2024-02-14,8.0,True,Migrate workloads.
+TS-000004,PRJ-0002,EMP-00006,2024-02-15,0.5,True,"Review, test, and sign off."
+TS-000005,PRJ-0002,EMP-00005,2024-02-16,4.25,True,Update runbook.

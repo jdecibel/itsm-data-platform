@@ -1,5 +1,5 @@
 -- Grain: one row per incident. Star-schema fact — FKs and measures only,
--- same reasoning as fct_helpdesk_ticket (int_incidents_enriched stays around
+-- same reasoning as fact_helpdesk_ticket (int_incidents_enriched stays around
 -- as the flattened, name-joined alternative).
 select
     incident_id,

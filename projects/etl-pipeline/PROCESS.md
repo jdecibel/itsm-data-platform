@@ -4,7 +4,7 @@ This project is Project 1 of a 4-part data engineering portfolio — see [`../..
 
 ## This project's build phases
 1. **Infrastructure + raw ingestion** — Docker-based Airflow, Postgres, and LocalStack (S3-compatible storage); raw IT-services data landed in an S3 raw zone, then loaded into a Postgres landing schema. ✅ Complete.
-2. **Transformation layer** — dbt staging, intermediate, and mart models forming a dimensional model over the raw data, with schema tests.
+2. **Transformation layer** — dbt staging, intermediate, and mart models forming a dimensional model over the raw data, with schema tests. ✅ Complete (21 models, 103 data tests, wired into the DAG, CI via GitHub Actions).
 3. **Incremental loads + orchestration hardening** — incremental loading, idempotent re-runs, backfill support, and failure handling for realistic data edge cases.
 4. **Analytics layer + polish** — a lightweight BI layer over the mart tables, final architecture documentation, and a review of what would change with real production infrastructure and budget.
 

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_staff
+    description: 1:1 cleanup of raw.staff — all 940 staff (40 technicians/PMs/AMs + 900 plain employees).
+    columns:
+      - name: staff_id
+        data_tests:
+          - unique
+          - not_null
+      - name: role
+        data_tests:
+          - accepted_values:
+              values: ['Helpdesk Technician', 'Field Engineer', 'Project Manager', 'Account Manager', 'Employee']

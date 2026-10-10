@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_assets
+    description: 1:1 cleanup of raw.assets.
+    columns:
+      - name: asset_id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: asset_type
+        data_tests:
+          - accepted_values:
+              values: ['Server', 'Laptop', 'Desktop', 'Network Switch', 'Firewall', 'Printer']
+      - name: asset_status
+        data_tests:
+          - accepted_values:
+              values: ['Active', 'Decommissioned']

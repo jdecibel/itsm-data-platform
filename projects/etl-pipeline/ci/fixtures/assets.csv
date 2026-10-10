@@ -1,0 +1,4 @@
+asset_id,client_id,asset_type,hostname,install_date,status
+AST-00001,CLI-0001,Server,acme-0001,2024-01-09,Active
+AST-00002,CLI-0001,Laptop,acme-0002,2024-03-17,Active
+AST-00003,CLI-0002,Firewall,globex-0003,2023-06-01,Decommissioned

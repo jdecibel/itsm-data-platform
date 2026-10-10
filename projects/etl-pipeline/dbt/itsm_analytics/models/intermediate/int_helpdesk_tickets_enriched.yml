@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: int_helpdesk_tickets_enriched
+    description: Helpdesk tickets with requester/assignee names and derived resolution time.
+    columns:
+      - name: ticket_id
+        data_tests:
+          - unique
+          - not_null

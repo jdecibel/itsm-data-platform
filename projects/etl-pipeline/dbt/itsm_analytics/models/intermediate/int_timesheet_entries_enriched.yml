@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: int_timesheet_entries_enriched
+    description: Timesheet entries with project/client/employee context.
+    columns:
+      - name: timesheet_id
+        data_tests:
+          - unique
+          - not_null

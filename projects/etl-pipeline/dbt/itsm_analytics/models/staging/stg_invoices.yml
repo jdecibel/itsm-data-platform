@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_invoices
+    description: 1:1 cleanup of raw.invoices.
+    data_tests:
+      # real min observed is 2062.76 — same reasoning as stg_timesheets.hours.
+      - dbt_utils.expression_is_true:
+          expression: "amount > 0"
+    columns:
+      - name: invoice_id
+        data_tests:
+          - unique
+          - not_null
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_projects')
+              field: project_id
+      - name: client_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clients')
+              field: client_id
+      - name: invoice_status
+        data_tests:
+          - accepted_values:
+              values: ['Sent', 'Paid', 'Overdue']

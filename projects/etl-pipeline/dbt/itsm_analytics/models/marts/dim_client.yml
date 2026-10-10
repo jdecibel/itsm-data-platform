@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: dim_client
+    description: >
+      Conformed client dimension. Natural key used directly (CLI-#### is
+      already clean and unique) — no surrogate key hashing.
+    columns:
+      - name: client_id
+        data_tests:
+          - unique
+          - not_null

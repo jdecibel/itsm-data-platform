@@ -1,0 +1,5 @@
+ticket_id,created_at,resolved_at,category,description,requested_by_employee_id,assigned_technician_id,priority,status
+TCK-000001,2024-10-25 17:01:00,2024-10-27 03:01:00,Hardware,Laptop will not boot,EMP-00005,EMP-00001,Critical,Closed
+TCK-000002,2024-12-05 04:08:00,2024-12-08 01:08:00,Access,Password reset needed,EMP-00006,EMP-00002,Medium,Resolved
+TCK-000003,2025-01-03 10:00:00,,Software,Cannot install application,EMP-00005,,Low,Open
+TCK-000004,2025-01-04 12:30:00,,Network,"VPN drops, intermittently",EMP-00006,EMP-00001,High,In Progress

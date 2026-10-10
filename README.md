@@ -4,7 +4,7 @@ A 4-project data engineering portfolio built around one simulated data domain �
 
 | # | Project | Paradigm | Status |
 |---|---------|----------|--------|
-| 1 | [`projects/etl-pipeline`](projects/etl-pipeline) | Batch ELT — dbt, Airflow, Docker, LocalStack, Postgres | Phase 1 complete |
+| 1 | [`projects/etl-pipeline`](projects/etl-pipeline) | Batch ELT — dbt, Airflow, Docker, LocalStack, Postgres | Phases 1–2 complete (dbt star schema, 103 tests, CI) |
 | 2 | `projects/streaming-pipeline` | Streaming/CDC — Kafka/Redpanda, Spark Structured Streaming or Flink | Not started |
 | 3 | `projects/data-quality-framework` | Data quality & observability — Great Expectations/dbt tests, Airflow alerting | Not started |
 | 4 | `projects/lakehouse` | Lakehouse — MinIO, Iceberg or Delta Lake, Trino/DuckDB | Not started |

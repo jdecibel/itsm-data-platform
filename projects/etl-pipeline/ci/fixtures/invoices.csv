@@ -1,0 +1,4 @@
+invoice_id,project_id,client_id,invoice_date,amount,status
+INV-00001,PRJ-0001,CLI-0001,2024-04-01,18407.75,Paid
+INV-00002,PRJ-0002,CLI-0002,2024-03-25,39365.24,Sent
+INV-00003,PRJ-0002,CLI-0002,2024-05-10,12000.00,Overdue

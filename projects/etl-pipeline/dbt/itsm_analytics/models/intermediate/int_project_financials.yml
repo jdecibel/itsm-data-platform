@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: int_project_financials
+    description: >
+      One row per project — hours (from timesheets) and invoiced amount
+      (from invoices) rolled up and reconciled at project grain, the only
+      level these two sub-domains share a key at (see model SQL comment).
+    columns:
+      - name: project_id
+        data_tests:
+          - unique
+          - not_null

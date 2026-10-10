@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fact_invoice
+    description: >
+      One row per invoice — FKs to dim_date (invoice_date), dim_project,
+      dim_client.
+    columns:
+      - name: invoice_id
+        description: Primary key (natural key from the source system).
+        data_tests:
+          - unique
+          - not_null
+      - name: invoice_date
+        description: Date the invoice was issued. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: project_id
+        description: Project the invoice belongs to. FK to dim_project.project_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_project')
+              field: project_id
+      - name: client_id
+        description: Client being invoiced. FK to dim_client.client_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_client')
+              field: client_id
+      - name: amount
+        description: Invoice amount (measure; always greater than zero).
+      - name: invoice_status
+        description: Sent / Paid / Overdue.

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_clients
+    description: 1:1 cleanup of raw.clients.
+    columns:
+      - name: client_id
+        data_tests:
+          - unique
+          - not_null
+      - name: contract_tier
+        data_tests:
+          - accepted_values:
+              values: ['Basic', 'Standard', 'Premium']

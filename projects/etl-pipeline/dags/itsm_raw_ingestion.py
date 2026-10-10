@@ -13,6 +13,7 @@ import logging
 import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.utils.task_group import TaskGroup
@@ -94,10 +95,11 @@ with DAG(
     start_date=pendulum.datetime(2024, 1, 1, tz="UTC"),
     catchup=False,
     max_active_runs=1,
-    tags=["phase-1", "raw-ingestion"],
+    tags=["phase-1", "phase-2", "raw-ingestion", "dbt"],
 ) as dag:
+    table_groups = []
     for table in TABLES:
-        with TaskGroup(group_id=table.name):
+        with TaskGroup(group_id=table.name) as tg:
             extract = PythonOperator(
                 task_id="extract_to_s3",
                 python_callable=_extract_to_s3,
@@ -109,3 +111,15 @@ with DAG(
                 op_kwargs={"table": table},
             )
             extract >> load
+        table_groups.append(tg)
+
+    # One project-wide task, not per table: dbt build needs all 8 raw tables
+    # landed, and parallel runs would collide on the same target schemas.
+    # DBT_PROFILES_DIR / DBT_DB_PASSWORD come from the container env.
+    dbt_build = BashOperator(
+        task_id="dbt_build",
+        bash_command="/opt/airflow/dbt_venv/bin/dbt build --project-dir /opt/airflow/dbt/itsm_analytics",
+        retries=0,
+    )
+
+    table_groups >> dbt_build

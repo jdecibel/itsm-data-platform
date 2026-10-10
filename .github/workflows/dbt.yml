@@ -1,0 +1,74 @@
+name: dbt
+
+# Phase 2 CI: build every dbt model and run every data test against a
+# throwaway Postgres loaded with the committed fixtures in ci/fixtures —
+# no Docker stack, no real data. (Phase 3 extends this to run the full DAG.)
+on:
+  push:
+    paths:
+      - "projects/etl-pipeline/dbt/**"
+      - "projects/etl-pipeline/ci/**"
+      - "projects/etl-pipeline/sql/landing_schema.sql"
+      - ".github/workflows/dbt.yml"
+  pull_request:
+    paths:
+      - "projects/etl-pipeline/dbt/**"
+      - "projects/etl-pipeline/ci/**"
+      - "projects/etl-pipeline/sql/landing_schema.sql"
+      - ".github/workflows/dbt.yml"
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # libpq vars used by ci/load_fixtures.sh
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: ci
+      PGDATABASE: ci
+      # read by the `ci` target in dbt/itsm_analytics/profiles.yml
+      DBT_CI_PASSWORD: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # Same pins as the Dockerfile, so CI and the Airflow image agree.
+      - name: Install dbt
+        run: pip install dbt-core==1.8.8 dbt-postgres==1.8.2
+
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Load fixtures into raw.*
+        run: bash projects/etl-pipeline/ci/load_fixtures.sh
+
+      - name: dbt deps
+        working-directory: projects/etl-pipeline/dbt/itsm_analytics
+        run: dbt deps --profiles-dir .
+
+      # `build` = run models + run tests in dependency order; any failing
+      # test fails the job.
+      - name: dbt build
+        working-directory: projects/etl-pipeline/dbt/itsm_analytics
+        run: dbt build --target ci --profiles-dir .

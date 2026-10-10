@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: fact_timesheet_entry
+    description: >
+      One row per timesheet entry — FKs to dim_date (work_date), dim_project,
+      dim_staff (employee). No row-level link to invoices (see
+      int_project_financials for the project-grain reconciliation).
+    columns:
+      - name: timesheet_id
+        description: Primary key (natural key from the source system).
+        data_tests:
+          - unique
+          - not_null
+      - name: work_date
+        description: Date the work was performed. FK to dim_date.date_day.
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: project_id
+        description: Project the hours were logged against. FK to dim_project.project_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_project')
+              field: project_id
+      - name: employee_id
+        description: Employee who logged the hours. FK to dim_staff.staff_id.
+        data_tests:
+          - relationships:
+              to: ref('dim_staff')
+              field: staff_id
+      - name: hours
+        description: Hours worked (measure; always greater than zero).
+      - name: billable
+        description: Whether the hours are billable to the client.
+      - name: task_description
+        description: Free-text description of the work (degenerate dimension).

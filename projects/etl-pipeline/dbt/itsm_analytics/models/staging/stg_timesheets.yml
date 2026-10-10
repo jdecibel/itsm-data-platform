@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_timesheets
+    description: 1:1 cleanup of raw.timesheets.
+    data_tests:
+      # real min observed is 0.5 — a zero or negative entry would be a real
+      # data bug, not legitimate data, so this is a genuine floor, not an
+      # arbitrary guess.
+      - dbt_utils.expression_is_true:
+          expression: "hours > 0"
+    columns:
+      - name: timesheet_id
+        data_tests:
+          - unique
+          - not_null
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_projects')
+              field: project_id
+      - name: employee_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_staff')
+              field: staff_id

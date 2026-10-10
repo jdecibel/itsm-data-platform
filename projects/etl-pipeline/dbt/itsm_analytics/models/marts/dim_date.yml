@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: >
+      Date spine, 2023-01-01 through 2026-12-31. Every fact-to-dim
+      relationships test built in Chunk E depends on date_day being unique —
+      that was never actually enforced until now.
+    columns:
+      - name: date_day
+        data_tests:
+          - unique
+          - not_null
